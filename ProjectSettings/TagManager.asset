@@ -47,5 +47,8 @@ TagManager:
   - name: Equipment
     uniqueID: 2725255
     locked: 0
+  - name: UI
+    uniqueID: 674899947
+    locked: 0
   m_RenderingLayers:
   - Default

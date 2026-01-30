@@ -11,9 +11,12 @@ public class GeneratorController : MonoBehaviour
     public GameObject tempBackground;
     public GameObject tempMenuClickable;
 
-    [Header ("---- Camera Positions ----")]
-    public Vector2 tempCamPosition;
-    public Vector2 pressureCamPosition;
+    [Header ("---- Camera Stuff ----")]
+    public Vector3 defaultCamPosition;
+    public Vector3 tempCamPosition;
+    public Vector3 pressureCamPosition;
+    public Color defaultBackgroundColor;
+    public Color interactBackgroundColor;
 
     private Camera cam;
 
@@ -24,9 +27,29 @@ public class GeneratorController : MonoBehaviour
 
     public void HandleClick(GameObject clickedObject)
     {
-        switch (clickedObject)
+        if (clickedObject.name == "ReturnClickable")
         {
-            
+            cam.transform.position = defaultCamPosition;
+            cam.backgroundColor = defaultBackgroundColor;
+        }
+
+        else if (clickedObject == pressureMeterClickable)
+        {
+            cam.transform.position = pressureCamPosition;
+            cam.backgroundColor = interactBackgroundColor;
+        }
+
+        else if (clickedObject == tempMenuClickable)
+        {
+            cam.transform.position = tempCamPosition;
+            cam.backgroundColor = interactBackgroundColor;
+        }
+
+        else if (clickedObject == powerSwitchClickable)
+        {
+            Quaternion rotation = powerSwitchVFX.transform.rotation;
+            rotation.z *= -1;
+            powerSwitchVFX.transform.rotation = rotation;
         }
     }
 }
