@@ -1,15 +1,23 @@
+using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class GeneratorController : MonoBehaviour
 {
     [Header ("---- Generator GameObjects ----")] 
     public GameObject shutdownButtonClickable;
+    public GameObject coolDownButtonClickable;
+    public GameObject ventButtonClickable;
     public GameObject powerSwitchVFX;
     public GameObject powerSwitchClickable;
     public GameObject pressureMeterVFX;
     public GameObject pressureMeterClickable;
-    public GameObject tempBackground;
+    public SpriteRenderer tempBackgroundGenerator;
+    public SpriteRenderer tempBackgroundInteractable;
     public GameObject tempMenuClickable;
+    public Color green;
+    public Color red;
+    private bool backgroundDebounce = false;
 
     [Header ("---- Camera Stuff ----")]
     public Vector3 defaultCamPosition;
@@ -18,9 +26,11 @@ public class GeneratorController : MonoBehaviour
     public Color defaultBackgroundColor;
     public Color interactBackgroundColor;
 
-    private float stability = 40f;
-    private float tempurature = 15f;
-    private float psi = 10f;
+    [Header("----Stats----")]
+    public Transform statsDisplayContainer;
+    public float stability;
+    public float tempurature;
+    public float psi;
     private bool switchActivated = false;
     private bool powerOn = true;
 
@@ -58,14 +68,26 @@ public class GeneratorController : MonoBehaviour
 
         if (stability < 35f)
         {
-            tempSpeed += 0.5f;
-            psiSpeed += 0.7f;
+            tempSpeed += 0.7f;
+            psiSpeed += 0.8f;
         }
 
         if (tempurature > 50f)
         {
-            stabilitySpeed += 0.2f;
+            stabilitySpeed += 0.3f;
+
+            if (!backgroundDebounce)
+            {
+                StartCoroutine(FlashBackground());
+                backgroundDebounce = true;
+            }
         }
+        else
+        {
+            backgroundDebounce = false;
+            StopCoroutine(FlashBackground());
+        }
+
         if (psi > 80f)
         {
             stabilitySpeed += 0.4f;
@@ -76,7 +98,7 @@ public class GeneratorController : MonoBehaviour
         stability -= stabilitySpeed * Time.deltaTime;
 
         tempurature = Mathf.Clamp(tempurature, 0f, 100f);
-        psi = Mathf.Clamp(psi, 0f, 100f);
+        psi = Mathf.Clamp(psi, 10f, 100f);
         stability = Mathf.Clamp(stability, 0f, 100f);
     }
 
@@ -86,6 +108,11 @@ public class GeneratorController : MonoBehaviour
         {
             cam.transform.position = defaultCamPosition;
             cam.backgroundColor = defaultBackgroundColor;
+
+            foreach (Transform child in statsDisplayContainer)
+            {
+                child.GetComponent<TextMeshProUGUI>().enabled = true;
+            }
         }
 
         else if (clickedObject == shutdownButtonClickable)
@@ -103,12 +130,17 @@ public class GeneratorController : MonoBehaviour
         {
             cam.transform.position = pressureCamPosition;
             cam.backgroundColor = interactBackgroundColor;
+
+            statsDisplayContainer.Find("PSI").GetComponent<TextMeshProUGUI>().enabled = false;
         }
 
         else if (clickedObject == tempMenuClickable)
         {
             cam.transform.position = tempCamPosition;
             cam.backgroundColor = interactBackgroundColor;
+
+            statsDisplayContainer.Find("Celcius").GetComponent<TextMeshProUGUI>().enabled = false;
+            statsDisplayContainer.Find("Farenheit").GetComponent<TextMeshProUGUI>().enabled = false;
         }
 
         else if (clickedObject == powerSwitchClickable)
@@ -117,6 +149,31 @@ public class GeneratorController : MonoBehaviour
             rotation.z *= -1;
             powerSwitchVFX.transform.rotation = rotation;
             switchActivated = !switchActivated;
+        }
+
+        else if (clickedObject == coolDownButtonClickable)
+        {
+            tempurature = Mathf.Clamp(tempurature - 9f, 0, 100);
+            psi = Mathf.Clamp(psi - 5f, 0, 100);
+        }
+
+        else if (clickedObject == ventButtonClickable)
+        {
+            psi = Mathf.Clamp(psi - 7f, 0, 100);
+            tempurature = Mathf.Clamp(psi - 5f, 0, 100);
+        }
+    }
+
+    IEnumerator FlashBackground()
+    {
+        while (true)
+        {
+        yield return new WaitForSeconds(0.4f);
+        tempBackgroundGenerator.color = red;
+        tempBackgroundInteractable.color = red;
+        yield return new WaitForSeconds(0.4f);
+        tempBackgroundGenerator.color = green;
+        tempBackgroundInteractable.color = green;
         }
     }
 }
