@@ -15,6 +15,7 @@ public class GeneratorController : MonoBehaviour
     public SpriteRenderer tempBackgroundGenerator;
     public SpriteRenderer tempBackgroundInteractable;
     public GameObject tempMenuClickable;
+    public AudioManager audioManager;
     public Color green;
     public Color red;
     private bool backgroundDebounce = false;
@@ -37,11 +38,19 @@ public class GeneratorController : MonoBehaviour
     public bool switchActivated = false;
     public bool powerOn = true;
 
-    static private float baseTempSpeed = 0.4f;
-    static private float basePsiSpeed = 0.15f;
-    static private float stabilitySpeed = 0.2f;
+    [Header("----Audio Clips----")]
+    public AudioClip pressureReleaseAudio;
+    public AudioClip coolDownAudio;
+    public AudioClip powerSwitchAudio;
+    public AudioClip powerDownAudio;
+    public AudioClip powerUpAudio;
+
+    static private float baseTempSpeed = 0.6f;
+    static private float basePsiSpeed = 0.32f;
+    static private float stabilitySpeed = 0.25f;
     private float tempSpeed = baseTempSpeed;
     private float psiSpeed = basePsiSpeed;
+    private double time = Time.timeAsDouble;
 
     private Camera cam;
 
@@ -58,15 +67,15 @@ public class GeneratorController : MonoBehaviour
 
         if (!powerOn)
         {
-            tempSpeed = -0.6f;
-            psiSpeed  = -0.5f;
+            tempSpeed = -0.9f;
+            psiSpeed  = -0.7f;
             stabilitySpeed += 1.2f;
         }
         else if (switchActivated)
         {
             tempSpeed *= 0.4f;
             psiSpeed  *= 3.2f;
-            stabilitySpeed += 0.4f;
+            stabilitySpeed *= -0.8f;
         }
 
         if (stability < 35f)
@@ -78,6 +87,7 @@ public class GeneratorController : MonoBehaviour
         if (tempurature > 50f)
         {
             stabilitySpeed += 0.4f;
+            tempSpeed += 0.4f;
 
             if (!backgroundDebounce)
             {
@@ -88,6 +98,7 @@ public class GeneratorController : MonoBehaviour
 
         if (psi > 65f)
         {
+            psiSpeed += 0.5f;
             if (!meterDebounce)
             {
                 meterDebounce = true;
@@ -124,12 +135,14 @@ public class GeneratorController : MonoBehaviour
             if (!powerOn)
             {
                 stability -= 4f;
+                audioManager.PlaySound(powerDownAudio, powerOn);
 
                 switchActivated = false;
                 Vector3 rotation = powerSwitchVFX.transform.eulerAngles;
                 rotation.z = 50f;
                 powerSwitchVFX.transform.eulerAngles = rotation;
             }
+            else audioManager.PlaySound(powerUpAudio, powerOn);
         }
 
         else if (clickedObject == pressureMeterClickable)
@@ -155,18 +168,24 @@ public class GeneratorController : MonoBehaviour
             rotation.z *= -1;
             powerSwitchVFX.transform.eulerAngles = rotation;
             switchActivated = !switchActivated;
+
+            audioManager.PlaySound(powerSwitchAudio);
         }
 
         else if (clickedObject == coolDownButtonClickable)
         {
             tempurature = Mathf.Clamp(tempurature - 9f, 0f, 100f);
             psi = Mathf.Clamp(psi + 5f, 10f, 100f);
+
+            audioManager.PlaySound(coolDownAudio);
         }
 
         else if (clickedObject == ventButtonClickable)
         {
             psi = Mathf.Clamp(psi - 7f, 10f, 100f);
             tempurature = Mathf.Clamp(tempurature + 5f, 0f, 100f);
+
+            audioManager.PlaySound(pressureReleaseAudio);
         }
     }
 
@@ -184,6 +203,7 @@ public class GeneratorController : MonoBehaviour
 
             if (tempurature < 50f)
             {
+                backgroundDebounce = false;
                 yield break;
             }
         }
