@@ -18,6 +18,7 @@ public class GeneratorController : MonoBehaviour
     public Color green;
     public Color red;
     private bool backgroundDebounce = false;
+    private bool meterDebounce = false;
 
     [Header ("---- Camera Stuff ----")]
     public Vector3 defaultCamPosition;
@@ -27,12 +28,14 @@ public class GeneratorController : MonoBehaviour
     public Color interactBackgroundColor;
 
     [Header("----Stats----")]
+    public UIController uiController;
     public Transform statsDisplayContainer;
+    public float shakeMagnitude;
     public float stability;
     public float tempurature;
     public float psi;
-    private bool switchActivated = false;
-    private bool powerOn = true;
+    public bool switchActivated = false;
+    public bool powerOn = true;
 
     static private float baseTempSpeed = 0.4f;
     static private float basePsiSpeed = 0.15f;
@@ -55,15 +58,15 @@ public class GeneratorController : MonoBehaviour
 
         if (!powerOn)
         {
-            tempSpeed = -0.4f;
-            psiSpeed  = -0.3f;
-            stabilitySpeed = -0.2f;
+            tempSpeed = -0.6f;
+            psiSpeed  = -0.5f;
+            stabilitySpeed += 1.2f;
         }
         else if (switchActivated)
         {
-            tempSpeed *= 0.5f;
-            psiSpeed  *= 1.8f;
-            stabilitySpeed += 0.3f;
+            tempSpeed *= 0.4f;
+            psiSpeed  *= 3.2f;
+            stabilitySpeed += 0.4f;
         }
 
         if (stability < 35f)
@@ -74,7 +77,7 @@ public class GeneratorController : MonoBehaviour
 
         if (tempurature > 50f)
         {
-            stabilitySpeed += 0.3f;
+            stabilitySpeed += 0.4f;
 
             if (!backgroundDebounce)
             {
@@ -82,24 +85,22 @@ public class GeneratorController : MonoBehaviour
                 backgroundDebounce = true;
             }
         }
-        else
+
+        if (psi > 65f)
         {
-            backgroundDebounce = false;
-            StopCoroutine(FlashBackground());
+            if (!meterDebounce)
+            {
+                meterDebounce = true;
+                stabilitySpeed += 0.4f;
+                StartCoroutine(ShakeMeter());
+            }
         }
 
-        if (psi > 80f)
-        {
-            stabilitySpeed += 0.4f;
-        }
-
-        tempurature += tempSpeed * Time.deltaTime;
-        psi += psiSpeed * Time.deltaTime;
-        stability -= stabilitySpeed * Time.deltaTime;
-
-        tempurature = Mathf.Clamp(tempurature, 0f, 100f);
-        psi = Mathf.Clamp(psi, 10f, 100f);
-        stability = Mathf.Clamp(stability, 0f, 100f);
+        tempurature = Mathf.Clamp(tempurature += tempSpeed * Time.deltaTime, 0f, 100f);
+        psi = Mathf.Clamp(psi += psiSpeed * Time.deltaTime, 10f, 100f);
+        stability = Mathf.Clamp(stability -= stabilitySpeed * Time.deltaTime, 0f, 100f);
+        
+        uiController.UpdateText();
     }
 
     public void HandleClick(GameObject clickedObject)
@@ -118,12 +119,17 @@ public class GeneratorController : MonoBehaviour
         else if (clickedObject == shutdownButtonClickable)
         {
             powerOn = !powerOn;
-            stability -= 3f;
+            uiController.UpdatePowerLabel();
 
-            switchActivated = false;
-            Quaternion rotation = powerSwitchVFX.transform.rotation;
-            rotation.z = 50f;
-            powerSwitchVFX.transform.rotation = rotation;
+            if (!powerOn)
+            {
+                stability -= 4f;
+
+                switchActivated = false;
+                Vector3 rotation = powerSwitchVFX.transform.eulerAngles;
+                rotation.z = 50f;
+                powerSwitchVFX.transform.eulerAngles = rotation;
+            }
         }
 
         else if (clickedObject == pressureMeterClickable)
@@ -145,22 +151,22 @@ public class GeneratorController : MonoBehaviour
 
         else if (clickedObject == powerSwitchClickable)
         {
-            Quaternion rotation = powerSwitchVFX.transform.rotation;
+            Vector3 rotation = powerSwitchVFX.transform.eulerAngles;
             rotation.z *= -1;
-            powerSwitchVFX.transform.rotation = rotation;
+            powerSwitchVFX.transform.eulerAngles = rotation;
             switchActivated = !switchActivated;
         }
 
         else if (clickedObject == coolDownButtonClickable)
         {
-            tempurature = Mathf.Clamp(tempurature - 9f, 0, 100);
-            psi = Mathf.Clamp(psi - 5f, 0, 100);
+            tempurature = Mathf.Clamp(tempurature - 9f, 0f, 100f);
+            psi = Mathf.Clamp(psi + 5f, 10f, 100f);
         }
 
         else if (clickedObject == ventButtonClickable)
         {
-            psi = Mathf.Clamp(psi - 7f, 0, 100);
-            tempurature = Mathf.Clamp(psi - 5f, 0, 100);
+            psi = Mathf.Clamp(psi - 7f, 10f, 100f);
+            tempurature = Mathf.Clamp(tempurature + 5f, 0f, 100f);
         }
     }
 
@@ -168,12 +174,39 @@ public class GeneratorController : MonoBehaviour
     {
         while (true)
         {
-        yield return new WaitForSeconds(0.4f);
-        tempBackgroundGenerator.color = red;
-        tempBackgroundInteractable.color = red;
-        yield return new WaitForSeconds(0.4f);
-        tempBackgroundGenerator.color = green;
-        tempBackgroundInteractable.color = green;
+            yield return new WaitForSeconds(0.4f);
+            tempBackgroundGenerator.color = red;
+            tempBackgroundInteractable.color = red;
+
+            yield return new WaitForSeconds(0.4f);
+            tempBackgroundGenerator.color = green;
+            tempBackgroundInteractable.color = green;
+
+            if (tempurature < 50f)
+            {
+                yield break;
+            }
+        }
+    }
+
+    IEnumerator ShakeMeter()
+    {
+        Vector2 originalPosition = pressureMeterVFX.transform.position;
+
+        while (true)
+        {
+            Vector2 newPosition = new Vector2(Random.Range(-shakeMagnitude, shakeMagnitude), Random.Range(-shakeMagnitude, shakeMagnitude));
+            pressureMeterVFX.transform.position = originalPosition + newPosition;
+            
+            yield return new WaitForEndOfFrame();
+
+            if (psi < 12f)
+            {
+                pressureMeterVFX.transform.position = originalPosition;
+                meterDebounce = false;
+                yield break;
+            }
         }
     }
 }
+

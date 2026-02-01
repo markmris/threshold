@@ -11,10 +11,11 @@ public class UIController : MonoBehaviour
     public TextMeshPro celciusReader;
     public TextMeshPro farenheitReader;
     public TextMeshPro psiReader;
+    public TextMeshPro powerLabel;
 
     public GeneratorController generatorController;
 
-    void Update()
+    public void UpdateText()
     {
         int roundedPsi = Mathf.RoundToInt(generatorController.psi);
         int roundedTempCelcius = Mathf.RoundToInt(generatorController.tempurature);
@@ -23,10 +24,24 @@ public class UIController : MonoBehaviour
 
         psiReader.text = Convert.ToString(roundedPsi) + " PSI";
         constantPsiReader.text = Convert.ToString(roundedPsi) + " PSI";
-        celciusReader.text = Convert.ToString(roundedTempCelcius) + "<sup>o</sup>C";
-        constantCelciusReader.text = Convert.ToString(roundedTempCelcius) + "<sup>o</sup>C";
-        farenheitReader.text = Convert.ToString(roundedTempFarenheit) + "<sup>o</sup>F";
-        constantFarenheitReader.text = Convert.ToString(roundedTempFarenheit) + "<sup>o</sup>F";
+        celciusReader.text = Convert.ToString(roundedTempCelcius) + "°C";
+        constantCelciusReader.text = Convert.ToString(roundedTempCelcius) + "°C";
+        farenheitReader.text = Convert.ToString(roundedTempFarenheit) + "°F";
+        constantFarenheitReader.text = Convert.ToString(roundedTempFarenheit) + "°F";
         stabilityPercentage.text = Convert.ToString(roundedStability) + "%";
+    }
+
+    public void UpdatePowerLabel()
+    {
+        if (generatorController.powerOn)
+        {
+            powerLabel.text = "ON";
+            powerLabel.color = Color.green;
+        }
+        else
+        {
+            powerLabel.text = "OFF";
+            powerLabel.color = Color.red;
+        }
     }
 }
