@@ -96,7 +96,7 @@ public class GeneratorController : MonoBehaviour
             }
         }
 
-        tempurature = Mathf.Clamp(tempurature += tempSpeed * Time.deltaTime, 0f, 100f);
+        tempurature = Mathf.Clamp(tempurature += tempSpeed * Time.deltaTime, 15f, 100f);
         psi = Mathf.Clamp(psi += psiSpeed * Time.deltaTime, 10f, 100f);
         stability = Mathf.Clamp(stability -= stabilitySpeed * Time.deltaTime, 0f, 100f);
         
@@ -200,7 +200,7 @@ public class GeneratorController : MonoBehaviour
             
             yield return new WaitForEndOfFrame();
 
-            if (psi < 12f)
+            if (psi < 65f)
             {
                 pressureMeterVFX.transform.position = originalPosition;
                 meterDebounce = false;
@@ -209,4 +209,3 @@ public class GeneratorController : MonoBehaviour
         }
     }
 }
-
