@@ -29,6 +29,7 @@ public class GeneratorController : MonoBehaviour
     public Color interactBackgroundColor;
 
     [Header("----Stats----")]
+    public GameOver gameOverScript;
     public UIController uiController;
     public Transform statsDisplayContainer;
     public float shakeMagnitude;
@@ -43,14 +44,12 @@ public class GeneratorController : MonoBehaviour
     public AudioClip coolDownAudio;
     public AudioClip powerSwitchAudio;
     public AudioClip powerDownAudio;
-    public AudioClip powerUpAudio;
 
     static private float baseTempSpeed = 0.6f;
     static private float basePsiSpeed = 0.32f;
     static private float stabilitySpeed = 0.25f;
     private float tempSpeed = baseTempSpeed;
     private float psiSpeed = basePsiSpeed;
-    private double time = Time.timeAsDouble;
 
     private Camera cam;
 
@@ -65,17 +64,23 @@ public class GeneratorController : MonoBehaviour
         psiSpeed = basePsiSpeed;
         stabilitySpeed = 0.2f;
 
+        if (tempurature >= 100f || psi >= 100f || stability <= 0)
+        {
+            gameOverScript.EndGame();
+            Destroy(this);
+        }
+
         if (!powerOn)
         {
             tempSpeed = -0.9f;
             psiSpeed  = -0.7f;
-            stabilitySpeed += 1.2f;
+            stabilitySpeed += .4f;
         }
         else if (switchActivated)
         {
             tempSpeed *= 0.4f;
             psiSpeed  *= 3.2f;
-            stabilitySpeed *= -0.8f;
+            stabilitySpeed *= -1f;
         }
 
         if (stability < 35f)
@@ -84,9 +89,9 @@ public class GeneratorController : MonoBehaviour
             psiSpeed += 0.8f;
         }
 
-        if (tempurature > 50f)
+        if (tempurature > 65f)
         {
-            stabilitySpeed += 0.4f;
+            stabilitySpeed += 0.6f;
             tempSpeed += 0.4f;
 
             if (!backgroundDebounce)
@@ -98,7 +103,7 @@ public class GeneratorController : MonoBehaviour
 
         if (psi > 65f)
         {
-            psiSpeed += 0.5f;
+            psiSpeed += 0.7f;
             if (!meterDebounce)
             {
                 meterDebounce = true;
@@ -131,18 +136,18 @@ public class GeneratorController : MonoBehaviour
         {
             powerOn = !powerOn;
             uiController.UpdatePowerLabel();
+            audioManager.GeneratorPowerSound(powerOn);
 
             if (!powerOn)
             {
                 stability -= 4f;
-                audioManager.PlaySound(powerDownAudio, powerOn);
+                audioManager.PlaySound(powerDownAudio);
 
                 switchActivated = false;
                 Vector3 rotation = powerSwitchVFX.transform.eulerAngles;
                 rotation.z = 50f;
                 powerSwitchVFX.transform.eulerAngles = rotation;
             }
-            else audioManager.PlaySound(powerUpAudio, powerOn);
         }
 
         else if (clickedObject == pressureMeterClickable)

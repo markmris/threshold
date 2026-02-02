@@ -12,14 +12,17 @@ public class AudioManager : MonoBehaviour
         sfxSource.Play();
     }
 
-    public void PlaySound(AudioClip sound, bool powerOn)
+    public void GeneratorPowerSound(bool powerOn)
     {
-        sfxSource.resource = sound;
-        sfxSource.Play();
-
         if (!powerOn) generatorHum.Stop();
         else generatorHum.Play();
+    }
 
-
+    public void MuteAudio()
+    {
+        foreach (Transform child in transform)
+        {
+            child.GetComponent<AudioSource>().volume = 0;
+        }
     }
 }
