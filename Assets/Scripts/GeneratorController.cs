@@ -52,7 +52,7 @@ public class GeneratorController : MonoBehaviour
     private float stabilitySpeed = 0.25f;
     private float tempSpeed;
     private float psiSpeed;
-    private float clickCooldown = 1.5f;
+    private float clickCooldown = 1f;
     private float time;
 
     private Camera cam;
