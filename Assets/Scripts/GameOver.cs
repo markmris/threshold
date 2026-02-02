@@ -12,8 +12,14 @@ public class GameOver : MonoBehaviour
     public RawImage emojiVideo;
     public TextMeshProUGUI gameOverText;
 
+    public TimerController timerController;
+
     public void EndGame()
     {
+        timerController.SaveTime();
+
+        Destroy(GameObject.Find("ModsCanvas"));
+
         foreach (Transform child in canvas.transform)
         {
             child.gameObject.SetActive(false);
@@ -23,7 +29,6 @@ public class GameOver : MonoBehaviour
         {
             child.GetComponent<AudioSource>().volume = 0;
         }
-
 
         gameOverText.gameObject.SetActive(true);
         emojiVideo.gameObject.SetActive(true);

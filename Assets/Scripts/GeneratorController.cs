@@ -1,12 +1,13 @@
 using System.Collections;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GeneratorController : MonoBehaviour
 {
     [Header ("---- Generator GameObjects ----")] 
     public GameObject shutdownButtonClickable;
-    public GameObject powerLabelClickable;
     public GameObject coolDownButtonClickable;
     public GameObject ventButtonClickable;
     public GameObject powerSwitchVFX;
@@ -46,11 +47,12 @@ public class GeneratorController : MonoBehaviour
     public AudioClip powerSwitchAudio;
     public AudioClip powerDownAudio;
 
-    static private float baseTempSpeed = 0.6f;
-    static private float basePsiSpeed = 0.32f;
-    static private float stabilitySpeed = 0.25f;
-    private float tempSpeed = baseTempSpeed;
-    private float psiSpeed = basePsiSpeed;
+    private float baseTempSpeed = 0.6f;
+    private float basePsiSpeed = 0.32f;
+    private float stabilitySpeed = 0.25f;
+    private float tempSpeed;
+    private float psiSpeed;
+    private float clickCooldown = 1.5f;
     private float time;
 
     private Camera cam;
@@ -59,6 +61,28 @@ public class GeneratorController : MonoBehaviour
     {
         cam = Camera.main;
         time = Time.time;
+
+        foreach (Transform child in GameObject.Find("ModsCanvas").transform)
+        {
+            Toggle toggle = child.GetComponent<Toggle>();
+
+            if (toggle && toggle.isOn)
+            {
+                if (child.name == "DoubleSpeed")
+                {
+                    baseTempSpeed *= 2;
+                    basePsiSpeed *= 2;
+                    stabilitySpeed *= 2;
+                }
+
+                else
+                {
+                    clickCooldown *= 2;
+                }
+            }
+        }
+
+        StartCoroutine(SpeedUp());
     }
 
     void Update()
@@ -135,7 +159,7 @@ public class GeneratorController : MonoBehaviour
             }
         }
 
-        else if (clickedObject == shutdownButtonClickable || clickedObject == powerLabelClickable)
+        else if (clickedObject == shutdownButtonClickable)
         {
             if (CheckDebounce()) return;
 
@@ -207,7 +231,7 @@ public class GeneratorController : MonoBehaviour
 
     bool CheckDebounce()
     {
-        if (Time.time - time < 1.5f) return true;
+        if (Time.time - time < clickCooldown) return true;
 
         else
         {
@@ -253,6 +277,17 @@ public class GeneratorController : MonoBehaviour
                 meterDebounce = false;
                 yield break;
             }
+        }
+    }
+
+    IEnumerator SpeedUp()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(120f);
+            baseTempSpeed *= 1.4f;
+            basePsiSpeed *= 1.4f;
+            stabilitySpeed *= 1.4f;
         }
     }
 }
