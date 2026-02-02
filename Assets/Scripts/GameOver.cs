@@ -9,7 +9,6 @@ public class GameOver : MonoBehaviour
 {
     public Camera cam;
     public Canvas canvas;
-    public RawImage emojiVideo;
     public TextMeshProUGUI gameOverText;
 
     public TimerController timerController;
@@ -31,8 +30,6 @@ public class GameOver : MonoBehaviour
         }
 
         gameOverText.gameObject.SetActive(true);
-        emojiVideo.gameObject.SetActive(true);
-        emojiVideo.transform.Find("VideoPlayer").GetComponent<VideoPlayer>().Play();
 
         StartCoroutine(ReloadMainMenu());
     }
