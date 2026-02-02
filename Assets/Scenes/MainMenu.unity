@@ -2263,7 +2263,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2, y: -62}
+  m_AnchoredPosition: {x: -2, y: -25}
   m_SizeDelta: {x: 2300, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1604998270
@@ -2288,12 +2288,14 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Your job at the power plant is to maintain the power generator, but it's
     really old and faulty! While watching it, you must make sure:\n\n- Tempurature
-    never exceeds 100\xB0C/212\xB0F.\n- Pressure never exceeds 100 PSI.\n- Stability
+    never exceeds 80\xB0C/176\xB0F.\n- Pressure never exceeds 80 PSI.\n- Stability
     stays above 0%.\n\nThe parts of the generator are:\n- Tempurature control menu:
     Cools down generator, but increases PSI.\n- Pressure control menu: Releases pressure,
     but heats up generator.\n- Power reroute switch: Improves stability, decreases
     tempurature, speeds up PSI.\n- Shutdown button: Decreases stability, reduces
-    tempurature and PSI.\n\nGood Luck!"
+    tempurature and PSI.\n\n(Note: You must wait 1.5 seconds between clicks when
+    venting pressure, cooling down generator, rerouting power, and shutting down
+    generator!)\n\nGood Luck!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
   m_sharedMaterial: {fileID: 1260715531048141648, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
@@ -2320,8 +2322,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70
-  m_fontSizeBase: 70
+  m_fontSize: 65
+  m_fontSizeBase: 65
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2763,7 +2765,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.3
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

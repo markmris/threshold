@@ -6,6 +6,7 @@ public class GeneratorController : MonoBehaviour
 {
     [Header ("---- Generator GameObjects ----")] 
     public GameObject shutdownButtonClickable;
+    public GameObject powerLabelClickable;
     public GameObject coolDownButtonClickable;
     public GameObject ventButtonClickable;
     public GameObject powerSwitchVFX;
@@ -50,12 +51,14 @@ public class GeneratorController : MonoBehaviour
     static private float stabilitySpeed = 0.25f;
     private float tempSpeed = baseTempSpeed;
     private float psiSpeed = basePsiSpeed;
+    private float time;
 
     private Camera cam;
 
     void Start()
     {
         cam = Camera.main;
+        time = Time.time;
     }
 
     void Update()
@@ -64,7 +67,7 @@ public class GeneratorController : MonoBehaviour
         psiSpeed = basePsiSpeed;
         stabilitySpeed = 0.2f;
 
-        if (tempurature >= 100f || psi >= 100f || stability <= 0)
+        if (tempurature >= 80f || psi >= 80f || stability <= 0)
         {
             gameOverScript.EndGame();
             Destroy(this);
@@ -83,13 +86,13 @@ public class GeneratorController : MonoBehaviour
             stabilitySpeed *= -1f;
         }
 
-        if (stability < 35f)
+        if (stability < 40f)
         {
             tempSpeed += 0.7f;
             psiSpeed += 0.8f;
         }
 
-        if (tempurature > 65f)
+        if (tempurature > 55f)
         {
             stabilitySpeed += 0.6f;
             tempSpeed += 0.4f;
@@ -101,7 +104,7 @@ public class GeneratorController : MonoBehaviour
             }
         }
 
-        if (psi > 65f)
+        if (psi > 55f)
         {
             psiSpeed += 0.7f;
             if (!meterDebounce)
@@ -132,8 +135,10 @@ public class GeneratorController : MonoBehaviour
             }
         }
 
-        else if (clickedObject == shutdownButtonClickable)
+        else if (clickedObject == shutdownButtonClickable || clickedObject == powerLabelClickable)
         {
+            if (CheckDebounce()) return;
+
             powerOn = !powerOn;
             uiController.UpdatePowerLabel();
             audioManager.GeneratorPowerSound(powerOn);
@@ -169,6 +174,8 @@ public class GeneratorController : MonoBehaviour
 
         else if (clickedObject == powerSwitchClickable)
         {
+            if (CheckDebounce()) return;
+
             Vector3 rotation = powerSwitchVFX.transform.eulerAngles;
             rotation.z *= -1;
             powerSwitchVFX.transform.eulerAngles = rotation;
@@ -179,6 +186,8 @@ public class GeneratorController : MonoBehaviour
 
         else if (clickedObject == coolDownButtonClickable)
         {
+            if (CheckDebounce()) return;
+
             tempurature = Mathf.Clamp(tempurature - 9f, 0f, 100f);
             psi = Mathf.Clamp(psi + 5f, 10f, 100f);
 
@@ -187,10 +196,23 @@ public class GeneratorController : MonoBehaviour
 
         else if (clickedObject == ventButtonClickable)
         {
+            if (CheckDebounce()) return;
+
             psi = Mathf.Clamp(psi - 7f, 10f, 100f);
             tempurature = Mathf.Clamp(tempurature + 5f, 0f, 100f);
 
             audioManager.PlaySound(pressureReleaseAudio);
+        }
+    }
+
+    bool CheckDebounce()
+    {
+        if (Time.time - time < 1.5f) return true;
+
+        else
+        {
+            time = Time.time;
+            return false;
         }
     }
 
