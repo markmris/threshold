@@ -72,3 +72,6 @@ https://markmris.itch.io/threshold
 4. Open the "Game" scene.
 
 5. Click the Play button at the top to run the game.
+
+<img width="1919" height="1078" alt="Screenshot 2026-02-02 173358" src="https://github.com/user-attachments/assets/a439e148-7d8a-49c8-ba82-a8ad45965ac3" />
+<img width="1270" height="712" alt="Screenshot 2026-02-02 164403" src="https://github.com/user-attachments/assets/2f2259d1-482d-4b95-b452-fb21d677f1cc" />
